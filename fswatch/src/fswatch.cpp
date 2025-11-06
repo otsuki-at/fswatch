@@ -309,6 +309,34 @@ static bool validate_latency(double latency, const char *pOptarg)
 
 static void register_signal_handlers()
 {
+#ifdef _WIN32
+  if (signal(SIGTERM, close_handler) != SIG_ERR)
+  {
+    FSW_ELOG(_("SIGTERM handler registered.\n"));
+  }
+  else
+  {
+    std::cerr << _("SIGTERM handler registration failed.") << std::endl;
+  }
+
+  if (signal(SIGABRT, close_handler) != SIG_ERR)
+  {
+    FSW_ELOG(_("SIGABRT handler registered.\n"));
+  }
+  else
+  {
+    std::cerr << _("SIGABRT handler registration failed.") << std::endl;
+  }
+
+  if (signal(SIGINT, close_handler) != SIG_ERR)
+  {
+    FSW_ELOG(_("SIGINT handler registered.\n"));
+  }
+  else
+  {
+    std::cerr << _("SIGINT handler registration failed") << std::endl;
+  }
+#else
   struct sigaction action{};
   action.sa_handler = close_handler;
   sigemptyset(&action.sa_mask);
@@ -340,6 +368,7 @@ static void register_signal_handlers()
   {
     std::cerr << _("SIGINT handler registration failed") << std::endl;
   }
+#endif
 }
 
 static void print_event_path(const event& evt)
